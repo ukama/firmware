@@ -37,3 +37,11 @@ config FLEXCOM_TWI_IOSET
 config FLEXCOM_TWI_IOSET_MAX
 	int
 	default 3 if SAMA5D2
+	
+config UKAMA_ANODE_CUSTOMIZATION
+	bool "Ukama ANode customization"
+	default n
+	help
+	  This setting will let you configure customized anode board.
+	  
+   
