@@ -48,7 +48,7 @@ static struct at91_flexcom flexcoms[] = {
 };
 #endif
 
-#ifdef UKAMA_ANODE_CUSTOMIZATION
+#ifdef CONFIG_UKAMA_ANODE_CUSTOMIZATION
 
 void at91_ukama_anode_leds_init(void)
 {
@@ -86,7 +86,7 @@ void at91_ukama_anode_leds_on(void)
 	pio_set_gpio_output(CONFIG_SYS_LED3_GREEN_PIN, 1);
 	pio_set_gpio_output(CONFIG_SYS_LED4_RED_PIN, 1);
 	pio_set_gpio_output(CONFIG_SYS_LED4_GREEN_PIN, 1);
-	pio_set_gpio_output(CONFIG_SYS_LED_GREEN_PIN, 1);
+	pio_set_gpio_output(CONFIG_SYS_LED4_GREEN_PIN, 1);
 
 }
 #endif
@@ -535,13 +535,14 @@ void hw_init(void)
 
 	at91_disable_wdt();
 
-#ifdef CONFIG_LED_ON_BOARD
+
 #ifndef CONFIG_UKAMA_ANODE_CUSTOMIZATION
+#ifdef CONFIG_LED_ON_BOARD
 	at91_leds_init();
+#endif
 #else
 	at91_ukama_anode_leds_init();
 	at91_ukama_anode_leds_on();
-#endif
 #endif
 
 	pmc_cfg_plla(PLLA_SETTINGS);
@@ -827,6 +828,9 @@ void at91_board_set_dtb_name(char *of_name)
 
 void at91_sdhc_hw_init(void)
 {
+#ifdef CONFIG_UKAMA_ANODE_CUSTOMIZATION
+	dbg_info("SDHC: Ukama ANode customization enabled.\n");
+#endif
 #ifdef CONFIG_BOARD_QUIRK_SAMA5D2_SIP
 	unsigned int reg;
 #endif
