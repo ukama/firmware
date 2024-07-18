@@ -48,6 +48,49 @@ static struct at91_flexcom flexcoms[] = {
 };
 #endif
 
+#ifdef UKAMA_ANODE_CUSTOMIZATION
+
+void at91_ukama_anode_leds_init(void)
+{
+
+	const struct pio_desc led_pins[] = {
+			{"LED1_RED", CONFIG_SYS_LED1_RED_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+			{"LED1_GREEN", CONFIG_SYS_LED1_GREEN_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+			{"LED1_BLUE", CONFIG_SYS_LED1_BLUE_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+			{"LED2_RED", CONFIG_SYS_LED2_RED_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+			{"LED2_GREEN", CONFIG_SYS_LED2_GREEN_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+			{"LED2_BLUE", CONFIG_SYS_LED2_BLUE_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+			{"LED3_RED", CONFIG_SYS_LED3_RED_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+			{"LED3_GREEN", CONFIG_SYS_LED3_GREEN_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+			{"LED3_BLUE", CONFIG_SYS_LED3_BLUE_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+			{"LED4_RED", CONFIG_SYS_LED4_RED_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+			{"LED4_GREEN", CONFIG_SYS_LED4_GREEN_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+			{"LED4_BLUE", CONFIG_SYS_LED4_BLUE_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A}
+
+	};
+
+	pio_configure(led_pins);
+
+
+}
+
+void at91_ukama_anode_leds_on(void)
+{
+
+	pio_set_gpio_output(CONFIG_SYS_LED1_RED_PIN, 1);
+	pio_set_gpio_output(CONFIG_SYS_LED1_GREEN_PIN, 1);
+	pio_set_gpio_output(CONFIG_SYS_LED2_RED_PIN, 1);
+	pio_set_gpio_output(CONFIG_SYS_LED2_GREEN_PIN, 1);
+	pio_set_gpio_output(CONFIG_SYS_LED3_RED_PIN, 1);
+	pio_set_gpio_output(CONFIG_SYS_LED3_GREEN_PIN, 1);
+	pio_set_gpio_output(CONFIG_SYS_LED4_RED_PIN, 1);
+	pio_set_gpio_output(CONFIG_SYS_LED4_GREEN_PIN, 1);
+	pio_set_gpio_output(CONFIG_SYS_LED_GREEN_PIN, 1);
+
+}
+#endif
+
 const unsigned int usart_base =
 #if CONFIG_CONSOLE_INDEX == 0
 	AT91C_BASE_UART0;
@@ -493,7 +536,12 @@ void hw_init(void)
 	at91_disable_wdt();
 
 #ifdef CONFIG_LED_ON_BOARD
+#ifndef CONFIG_UKAMA_ANODE_CUSTOMIZATION
 	at91_leds_init();
+#else
+	at91_ukama_anode_leds_init();
+	at91_ukama_anode_leds_on();
+#endif
 #endif
 
 	pmc_cfg_plla(PLLA_SETTINGS);
@@ -767,7 +815,11 @@ void nandflash_hw_init(void)
 #ifdef CONFIG_OF_LIBFDT
 void at91_board_set_dtb_name(char *of_name)
 {
+#ifndef CONFIG_UKAMA_ANODE_CUSTOMIZATION
+	strcpy(of_name, "ukama_anode.dtb");
+#else
 	strcpy(of_name, CONFIG_DEVICENAME ".dtb");
+#endif
 }
 #endif
 
@@ -795,10 +847,15 @@ void at91_sdhc_hw_init(void)
 #endif
 		{"SDMMC0_RSTN", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"SDMMC0_VDDSEL", AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
+
 #ifndef CONFIG_BOARD_QUIRK_SAMA5D2_XULT
+#ifndef CONFIG_UKAMA_ANODE_CUSTOMIZATION
 		{"SDMMC0_WP",   AT91C_PIN_PA(12), 1, PIO_DEFAULT, PIO_PERIPH_A},
 #endif
+#endif
+#ifndef CONFIG_UKAMA_ANODE_CUSTOMIZATION
 		{"SDMMC0_CD",   AT91C_PIN_PA(13), 0, PIO_DEFAULT, PIO_PERIPH_A},
+#endif
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 #endif
