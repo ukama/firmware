@@ -222,6 +222,12 @@ config SYS_BOOTCOUNT_ADDR
 	help
 	  Set the address used for reading and writing the boot counter.
 
+config SYS_BOOTCOUNT_I2C_ADDR
+    hex "I2C Address for storing bootcount"
+    depends on BOOTCOUNT_I2C
+    help
+      Set the I2C address used for reading and writing the boot counter.
+
 config SYS_BOOTCOUNT_MAGIC
 	hex "Magic value for the boot counter"
 	default 0xB001C041 if BOOTCOUNT_GENERIC || BOOTCOUNT_EXT || \
