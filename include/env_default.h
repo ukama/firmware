@@ -106,6 +106,7 @@ const char default_environment[] = {
 #if defined(CONFIG_BOOTCOUNT_BOOTLIMIT) && (CONFIG_BOOTCOUNT_BOOTLIMIT > 0)
 	"bootlimit="	__stringify(CONFIG_BOOTCOUNT_BOOTLIMIT)"\0"
 #endif
+    "justtest=" __stringify(CONFIG_BOOTCOUNT_BOOTLIMIT)"\0"
 #ifdef CONFIG_MTDIDS_DEFAULT
 	 "mtdids="	CONFIG_MTDIDS_DEFAULT		"\0"
 #endif
