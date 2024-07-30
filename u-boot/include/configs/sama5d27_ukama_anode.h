@@ -28,7 +28,7 @@
     "setenv bootlimit 3;" \
     "setenv rootfs_part_A 5;" \
     "setenv rootfs_part_B 6;" \
-    "setenv rootfs_part_R 2;" \
+    "setenv rootfs_part_R 3;" \
     "setenv altbootcmd run bootcmd;" \
     "saveenv; \0"
 
@@ -152,7 +152,7 @@
 
 #define ENV_CHECK_UPGARDES "check_upgrade="\
     "if test ${upgrade_available} -eq 1; then " \
-        "echo  upgrade_available is set; " \
+        "echo  upgrade_available is set;" \
         "if test ${bootcount} -gt ${bootlimit}; then " \
             "if test -n ${A}; then " \
                 "setenv partition_status_A ${partition_bad};" \
@@ -162,8 +162,8 @@
                 "setenv partition_status_B ${partition_bad};" \
                 "echo  partition B marked bad; " \
             "fi;" \
-            "if test -n ${R}; then" \
-                "echo Still boot from recovery.;" \
+            "if test -n ${R}; then " \
+                "echo Still boot from recovery;" \
             "else " \
                 "echo toggle partition due to boot failure for last ${bootcount} count;" \
                 "run toggle_partition;" \
