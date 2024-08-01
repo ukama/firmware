@@ -174,6 +174,7 @@
         "echo  sw initiated upgrade is set; " \
         "echo toggle partition due to sw upgrade is set; " \
         "run toggle_partition;" \
+        "setenv sw_initiated_upgrade 0;" \
     "fi;" \
     "saveenv; \0"
 
