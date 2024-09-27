@@ -26,7 +26,7 @@ ROOTFSKPATH = $(ROOTFSPATH)/boot
 
 # Config for Builds
 AT91CONFIG := sama5d27_ukama_eksd1_uboot_defconfig
-UBOOTCONFIG := sama5d27_ukama_anode_emmc_defconfig
+UBOOTCONFIG := sama5d27_ukama_anode_sdcard_defconfig
 CBCONFIG := config.ukama_comv1_16mb
 # Path to coreboot tool chain
 COREBOOTXCCPATH := $(COREBOOTSRC)/util/crossgcc/xgcc
@@ -66,7 +66,6 @@ endef
 
 subdirs: $(SRCDIRS)
 
-#AT91BOOTSTARP
 at91bootstrap:
 	@echo Building $@
 	mkdir -p $(ROOTFSKPATH)/$@
@@ -76,16 +75,14 @@ at91bootstrap:
 	@echo Copy at91-bootstrap/build/binaries/$(AT91BOOTSTRAPBIN) $(ROOTFSKPATH)/$@/$(AT91BOOTSTRAPBIN)
 	(cp -v at91-bootstrap/build/binaries/$(AT91BOOTSTRAPBIN) $(ROOTFSKPATH)/$@/$(AT91BOOTSTRAPBIN))
 
-#UBOOT
 uboot:
 	@echo Building $@
 	mkdir -p $(ROOTFSKPATH)/$@
-	$(MAKE) -s -j$(NPROCS) -C $@ ARCH=$(ARCH) CROSS_COMPILE=$(CC) $(UBOOTCONFIG)
-	$(MAKE) -j$(NPROCS) -C $@ ARCH=$(ARCH) CROSS_COMPILE=$(CC)
-	@echo Copy $@/$(UBOOTBIN) $(ROOTFSKPATH)/$@/$(UBOOTBIN)
-	(cp -v $@/$(UBOOTBIN) $(ROOTFSKPATH)/$@/$(UBOOTBIN) )
+	$(MAKE) -s -j$(NPROCS) -C u-boot ARCH=$(ARCH) CROSS_COMPILE=$(CC) $(UBOOTCONFIG)
+	$(MAKE) -j$(NPROCS) -C u-boot ARCH=$(ARCH) CROSS_COMPILE=$(CC)
+	@echo Copy u-boot/$(UBOOTBIN) $(ROOTFSKPATH)/$@/$(UBOOTBIN)
+	(cp -v u-boot/$(UBOOTBIN) $(ROOTFSKPATH)/$@/$(UBOOTBIN) )
 
-#coreboot
 coreboot:
 	@echo Building $@
 	mkdir -p $(ROOTFSKPATH)/$@
