@@ -11,7 +11,7 @@ CURDIR := $(dir $(CURMAKE))
 
 #Targets based on boards
 COREBOOTSRC = coreboot
-ANODETARGET = at91bootstrap uboot
+ANODETARGET = at91-bootstrap u-boot
 CNODETARGET = $(COREBOOTSRC) 
 LOCALTARGET = $(COREBOOTSRC)
 AT91BOOTSTRAPBIN = at91bootstrap.bin
@@ -25,7 +25,7 @@ endif
 ROOTFSKPATH = $(ROOTFSPATH)/boot
 
 # Config for Builds
-AT91CONFIG := ukama_anode_eMMC_uboot_defconfig
+AT91CONFIG := sama5d27_ukama_eksd1_uboot_defconfig
 UBOOTCONFIG := sama5d27_ukama_anode_emmc_defconfig
 CBCONFIG := config.ukama_comv1_16mb
 # Path to coreboot tool chain
@@ -70,10 +70,11 @@ subdirs: $(SRCDIRS)
 at91bootstrap:
 	@echo Building $@
 	mkdir -p $(ROOTFSKPATH)/$@
-	$(MAKE) -j$(NPROCS) -C $@ ARCH=$(ARCH) CROSS_COMPILE=$(CC) $(AT91CONFIG)
-	$(MAKE) -j$(NPROCS) -C $@ ARCH=$(ARCH) CROSS_COMPILE=$(CC)
-	@echo Copy $@/binaries/$(AT91BOOTSTRAPBIN) $(ROOTFSKPATH)/$@/$(AT91BOOTSTRAPBIN)
-	(cp -v $@/binaries/$(AT91BOOTSTRAPBIN) $(ROOTFSKPATH)/$@/$(AT91BOOTSTRAPBIN))	
+	cd at91-bootstrap
+	$(MAKE) -j$(NPROCS) -C at91-bootstrap ARCH=$(ARCH) CROSS_COMPILE=$(CC) $(AT91CONFIG)
+	$(MAKE) -j$(NPROCS) -C at91-bootstrap ARCH=$(ARCH) CROSS_COMPILE=$(CC)
+	@echo Copy at91-bootstrap/build/binaries/$(AT91BOOTSTRAPBIN) $(ROOTFSKPATH)/$@/$(AT91BOOTSTRAPBIN)
+	(cp -v at91-bootstrap/build/binaries/$(AT91BOOTSTRAPBIN) $(ROOTFSKPATH)/$@/$(AT91BOOTSTRAPBIN))
 
 #UBOOT
 uboot:
@@ -100,7 +101,7 @@ grub:
 	(cd $@ && ./bootstrap && ./configure --prefix=$(ROOTFSKPATH)/$@)
 	$(MAKE) -j$(NPROCS) -C $@ ARCH=$(ARCH) CROSS_COMPILE=$(CC)
 	$(MAKE) -j$(NPROCS) -C $@ install
-	
+
 clean :
 	@echo Cleaning firmware build.
 	rm -rf $(ROOTFSKPATH)
