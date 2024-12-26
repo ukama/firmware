@@ -19,7 +19,7 @@
 #define ENV_UPGRADE_AVAILABLE "upgrade_available=1 \0"
 #define ENV_SW_INITIATED_UPGRADE "sw_initiated_upgrade=0 \0"
 #define ENV_ALT_BOOT_CMD "altbootcmd=run bootcmd \0"
-#define ENV_MMC_BLK_ID "mmcblkid=0 \0"
+#define ENV_MMC_BLK_ID "mmcblkid=0\0"
 
 #define ENV_SET_DEFAULT "set_uboot_env=" \
     "echo Initializing ubootenv;" \
