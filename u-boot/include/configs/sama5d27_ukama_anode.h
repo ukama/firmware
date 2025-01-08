@@ -19,12 +19,13 @@
 #define ENV_UPGRADE_AVAILABLE "upgrade_available=1 \0"
 #define ENV_SW_INITIATED_UPGRADE "sw_initiated_upgrade=0 \0"
 #define ENV_ALT_BOOT_CMD "altbootcmd=run bootcmd \0"
+#define ENV_MMC_BLK_ID "mmcblkid=0\0"
 
 #define ENV_SET_DEFAULT "set_uboot_env=" \
     "echo Initializing ubootenv;" \
     "setenv partition_good 1;" \
     "setenv partition_bad 2;" \
-    "setenv rootfs_dev /dev/mmcblk1;" \
+    "setenv rootfs_dev /dev/mmcblk;" \
     "setenv bootlimit 3;" \
     "setenv rootfs_part_A 5;" \
     "setenv rootfs_part_B 6;" \
@@ -85,9 +86,9 @@
 #define ENV_SET_BOOTARGS "set_bootargs="\
     "setenv bootargs console=ttyS0,115200 earlyprintk root=${mmc_active_vol} rw rootwait \0"
 
-#define ENV_SET_MMC_IFACE "set_mmc_iface=setenv mmc_iface 1:${active_part} \0"
+#define ENV_SET_MMC_IFACE "set_mmc_iface=setenv mmc_iface ${mmcblkid}:${active_part} \0"
 
-#define ENV_SET_MMC_VOL "set_mmc_vol=setenv mmc_active_vol ${rootfs_dev}p${active_part}; \0"
+#define ENV_SET_MMC_VOL "set_mmc_vol=setenv mmc_active_vol ${rootfs_dev}${mmcblkid}p${active_part}; \0"
 
 #define ENV_TOGGLE_PARTITION "toggle_partition="\
     "if test -n ${A}; then " \
@@ -191,6 +192,7 @@
 #define ENV_BOOT_CMD "bootcmd=run emmc_boot; bootz 0x22000000 - 0x21000000; \0"
 
 #define CFG_EXTRA_ENV_SETTINGS \
+	ENV_MMC_BLK_ID \
         ENV_SET_DEFAULT \
         ENV_SET_CONDITIONAL \
         ENV_SET_ACTIVE_PART \
