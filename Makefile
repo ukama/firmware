@@ -24,7 +24,7 @@ UBOOT_CONFIG := sama5d27_ukama_anode_emmc_defconfig
 ifeq ($(AMPLIFIER_NODE), $(TARGET_BOARD))
 	override CC   = arm-linux-gnueabihf-
 	override HOST = arm-linux-gnueabihf
-	override ARCH = arm
+	override ARCH = $(ARCH_ARM)
 	SRC_DIRS = $(AMPLIFIER_TARGET)
 endif
 
