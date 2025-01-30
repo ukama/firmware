@@ -74,19 +74,16 @@ u-boot:
 clean:
 	@echo "Cleaning firmware build."
 	rm -rf $(ROOTFS_KPATH)
-	ifneq ($(strip $(SRC_DIRS)),)
-		for dir in $(SRC_DIRS); do \
-			$(MAKE) -j$(NPROCS) -C $$dir -f Makefile $@; \
-		done
-	endif
+	for dir in $(SRC_DIRS); do \
+		$(MAKE) -j$(NPROCS) -C $$dir -f Makefile $@; \
+	done
+
 
 distclean:
 	@echo "DistClean started for firmware."
-	ifneq ($(strip $(SRC_DIRS)),)
-		for dir in $(SRC_DIRS); do \
-			$(MAKE) -C $$dir -f Makefile $@; \
-		done
-	endif
+	for dir in $(SRC_DIRS); do \
+		$(MAKE) -C $$dir -f Makefile $@; \
+	done
 	rm -rf $(ROOTFS_KPATH)
 	rm -rf *.img
 
