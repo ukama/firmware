@@ -6,114 +6,83 @@
 
 include ../config.mk
 
-CURMAKE := $(abspath $(firstword $(MAKEFILE_LIST)))
-CURDIR := $(dir $(CURMAKE))
+CUR_MAKE := $(abspath $(firstword $(MAKEFILE_LIST)))
+CUR_DIR := $(dir $(CUR_MAKE))
 
 #Targets based on boards
-COREBOOTSRC = coreboot
-ANODETARGET = at91-bootstrap u-boot
-CNODETARGET = $(COREBOOTSRC) 
-LOCALTARGET = $(COREBOOTSRC)
+AMPLIFIER_TARGET = at91-bootstrap u-boot
 AT91BOOTSTRAPBIN = at91bootstrap.bin
 UBOOTBIN = u-boot.bin
-COREBOOTBIN = coreboot.rom
 
-#Output
-ifndef ROOTFSPATH
-override ROOTFSPATH = $(CURPATH)_ukamafs
-endif
-ROOTFSKPATH = $(ROOTFSPATH)/boot
+ROOTFS_KPATH = $(CUR_DIR)build
 
 # Config for Builds
-AT91CONFIG := sama5d27_ukama_emmc_uboot_defconfig
-UBOOTCONFIG := sama5d27_ukama_anode_emmc_defconfig
-CBCONFIG := config.ukama_comv1_16mb
-# Path to coreboot tool chain
-COREBOOTXCCPATH := $(COREBOOTSRC)/util/crossgcc/xgcc
-COREBOOTXCC := i386-elf-gcc
+AT91_CONFIG := sama5d27_ukama_emmc_uboot_defconfig
+UBOOT_CONFIG := sama5d27_ukama_anode_emmc_defconfig
 
-#Set build parameters based on targets
-ifeq ($(ANODEBOARD), $(TARGETBOARD))
-SRCDIRS = $(ANODETARGET)
-override CC = arm-linux-gnueabihf-
+ifeq ($(AMPLIFIER_NODE), $(TARGET_BOARD))
+        override CC   = arm-linux-gnueabihf-
+        override HOST = arm-linux-gnueabihf
+        SRC_DIRS = $(AMPLIFIER_TARGET)
 endif
 
-ifeq ($(CNODEBOARD), $(TARGETBOARD))
-override ARCH = $(ARCH_X86)
-SRCDIRS = $(CNODETARGET)
+ifeq ($(TOWER_NODE), $(TARGET_BOARD))
+        override ARCH   = $(ARCH_X86_64)
+        override HOST   = x86_64-linux-musl
+
 endif
 
-#Local 
-ifeq ($(LOCAL), $(TARGETBOARD))
-override ARCH = $(ARCH_X86)
-SRCDIRS = $(LOCALTARGET)
+ifeq ($(ACCESS_NODE), $(TARGET_BOARD))
+        override CC     = aarch64-linux-gnu-gcc
+        override HOST   = aarch64-linux-gnu
+
 endif
 
-define checkxcc
-	@echo Checking for coreboot toolchain.
-	$(shell if [ ! -f "$(COREBOOTXCCPATH)/bin/$(COREBOOTXCC)" ] ; then \
-		(echo "$(MAKE) -C $(COREBOOTSRC) crossgcc-i386 CPUS=$(NPROCS)") \
-	fi;)
+ifeq ($(LOCAL), $(TARGET_BOARD))
+        override CC     = gcc
+        override ARCH   =  $(ARCH_X86_64)
+        overide HOST    = $(shell gcc -dumpmachine)
+        SRC_DIRS = $(LOCAL_TARGET)
+endif
 
-endef
+$(info TARGET_BOARD = $(TARGET_BOARD) SRCDIRS = $(SRCDIRS))
 
-#make crossgcc-i386 CPUS=$(NPROCS)
-#$(shell test -s $(COREBOOTXCC) || { echo "Coreboot toolcahin missing.Staring build for one"; \
-#	cd $(COREBOOTXCC) && $(MAKE) crossgcc-i386 CPUS=$(NPROCS); })
+.PHONY: $(SRC_DIRS) info clean
 
-
-.PHONY: subdirs $(SRCDIRS) info
-
-subdirs: $(SRCDIRS)
+subdirs: info $(SRC_DIRS)
 
 at91-bootstrap:
 	@echo Building $@
-	mkdir -p $(ROOTFSKPATH)/$@
+	mkdir -p $(ROOTFS_KPATH)/$@
 	cd at91-bootstrap
-	$(MAKE) -j$(NPROCS) -C at91-bootstrap ARCH=$(ARCH) CROSS_COMPILE=$(CC) $(AT91CONFIG)
+	$(MAKE) -j$(NPROCS) -C at91-bootstrap ARCH=$(ARCH) CROSS_COMPILE=$(CC) $(AT91_CONFIG)
 	$(MAKE) -j$(NPROCS) -C at91-bootstrap ARCH=$(ARCH) CROSS_COMPILE=$(CC)
-	@echo Copy at91-bootstrap/build/binaries/$(AT91BOOTSTRAPBIN) $(ROOTFSKPATH)/$@/$(AT91BOOTSTRAPBIN)
-	(cp -v at91-bootstrap/build/binaries/$(AT91BOOTSTRAPBIN) $(ROOTFSKPATH)/$@/$(AT91BOOTSTRAPBIN))
+	@echo Copy at91-bootstrap/build/binaries/$(AT91BOOTSTRAPBIN) $(ROOTFS_KPATH)/$@/$(AT91BOOTSTRAPBIN)
+	(cp -v at91-bootstrap/build/binaries/$(AT91BOOTSTRAPBIN) $(ROOTFS_KPATH)/$@/$(AT91BOOTSTRAPBIN))
 
 u-boot:
 	@echo Building $@
-	mkdir -p $(ROOTFSKPATH)/$@
-	$(MAKE) -s -j$(NPROCS) -C u-boot ARCH=$(ARCH) CROSS_COMPILE=$(CC) $(UBOOTCONFIG)
+	mkdir -p $(ROOTFS_KPATH)/$@
+	$(MAKE) -s -j$(NPROCS) -C u-boot ARCH=$(ARCH) CROSS_COMPILE=$(CC) $(UBOOT_CONFIG)
 	$(MAKE) -j$(NPROCS) -C u-boot ARCH=$(ARCH) CROSS_COMPILE=$(CC)
-	@echo Copy u-boot/$(UBOOTBIN) $(ROOTFSKPATH)/$@/$(UBOOTBIN)
-	(cp -v u-boot/$(UBOOTBIN) $(ROOTFSKPATH)/$@/$(UBOOTBIN) )
-
-coreboot:
-	@echo Building $@
-	mkdir -p $(ROOTFSKPATH)/$@
-	$(call checkxcc)
-	(cd $@ && cp -v configs/config.ukama_comv1_16mb .config)
-	$(MAKE) -j$(NPROCS) -C $@ 
-	@echo Copy $@/build/$(COREBOOTBIN) $(ROOTFSKPATH)/$@/$(COREBOOTBIN)
-	(cp -v $@/build/$(COREBOOTBIN) $(ROOTFSKPATH)/$@/$(COREBOOTBIN))
-
-grub:
-	@echo Building $@
-	mkdir -p $(ROOTFSKPATH)/$@
-	(cd $@ && ./bootstrap && ./configure --prefix=$(ROOTFSKPATH)/$@)
-	$(MAKE) -j$(NPROCS) -C $@ ARCH=$(ARCH) CROSS_COMPILE=$(CC)
-	$(MAKE) -j$(NPROCS) -C $@ install
+	@echo Copy u-boot/$(UBOOTBIN) $(ROOTFS_KPATH)/$@/$(UBOOTBIN)
+	(cp -v u-boot/$(UBOOTBIN) $(ROOTFS_KPATH)/$@/$(UBOOTBIN) )
 
 clean :
 	@echo Cleaning firmware build.
-	rm -rf $(ROOTFSKPATH)
-	for dir in $(SRCDIRS); do \
-		$(MAKE) -j$(NPROCS) -C $$dir -f Makefile $@; \
+	rm -rf $(ROOTFS_KPATH)
+	for dir in $(SRC_DIRS); do \
+                $(MAKE) -j$(NPROCS) -C $$dir -f Makefile $@; \
         done
 
 distclean:
 	@echo DistClean started for firmware.
-	for dir in $(SRCDIRS); do \
+	for dir in $(SRC_DIRS); do \
                 $(MAKE) -C $$dir -f Makefile $@; \
         done
-	rm -rf $(COREBOOTXCCPATH) 
-	rm -rf $(ROOTFSPATH)
+	rm -rf $(ROOTFS_KPATH)
 	rm -rf *.img
 
 info:  
-	$(info [$@] Building $(TARGETBOARD) for $(ARCH) with $(CC) )
+	$(info [$@] Building $(TARGET_BOARD) $(SRC_DIRS) for $(ARCH) with $(CC))
+~                                                                                 
