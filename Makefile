@@ -37,8 +37,15 @@ COREBOOTXCC := i386-elf-gcc
 # Set build parameters based on targets
 ifeq ($(AMPLIFIER_NODE), $(TARGET_BOARD))
 SRCDIRS = $(AMPLIFIER_NODE_TARGET)
-override CC = arm-linux-gnueabihf-
 override ARCH = $(ARCH_ARM)
+
+# Use cross-compiler only if not running natively on ARM
+UNAME := $(shell uname -m)
+ifeq ($(findstring arm,$(UNAME)),)
+    override CC = arm-linux-gnueabihf-
+else
+    override CC =
+endif
 endif
 
 ifeq ($(TOWER_NODE), $(TARGET_BOARD))
