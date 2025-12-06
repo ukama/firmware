@@ -30,7 +30,7 @@ COREBOOTXCC := i386-elf-gcc
 
 #Set build parameters based on targets
 ifeq ($(TARGET),amplifier)
-SRCDIRS = at91-bootstrap u-boot
+SRCDIRS = at91bootstrap uboot
 override CC = arm-linux-gnueabihf-
 endif
 
