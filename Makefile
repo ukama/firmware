@@ -28,18 +28,21 @@ CBCONFIG := config.ukama_comv1_16mb
 COREBOOTXCCPATH := $(COREBOOTSRC)/util/crossgcc/xgcc
 COREBOOTXCC := i386-elf-gcc
 
-#Set build parameters based on targets
+# Set build parameters based on targets
 ifeq ($(TARGET),amplifier)
-SRCDIRS = at91bootstrap uboot
+BUILDS  := at91bootstrap uboot
+SRCDIRS := at91-bootstrap u-boot
 override CC = arm-linux-gnueabihf-
 endif
 
 ifeq ($(TARGET),tower)
-SRCDIRS = coreboot
+BUILDS  := coreboot
+SRCDIRS := coreboot
 endif
 
 ifeq ($(TARGET),local)
-SRCDIRS = coreboot
+BUILDS  := coreboot
+SRCDIRS := coreboot
 endif
 
 define checkxcc
@@ -54,15 +57,13 @@ endef
 #$(shell test -s $(COREBOOTXCC) || { echo "Coreboot toolcahin missing.Staring build for one"; \
 #	cd $(COREBOOTXCC) && $(MAKE) crossgcc-i386 CPUS=$(NPROCS); })
 
+.PHONY: subdirs $(BUILDS) coreboot grub clean distclean info
 
-.PHONY: subdirs $(SRCDIRS) info
-
-subdirs: $(SRCDIRS)
+subdirs: $(BUILDS)
 
 at91bootstrap:
 	@echo Building $@
 	mkdir -p $(ROOTFSKPATH)/$@
-	cd at91-bootstrap
 	$(MAKE) -j$(NPROCS) -C at91-bootstrap ARCH=$(ARCH) CROSS_COMPILE=$(CC) $(AT91CONFIG)
 	$(MAKE) -j$(NPROCS) -C at91-bootstrap ARCH=$(ARCH) CROSS_COMPILE=$(CC)
 	@echo Copy at91-bootstrap/build/binaries/$(AT91BOOTSTRAPBIN) $(ROOTFSKPATH)/$@/$(AT91BOOTSTRAPBIN)
